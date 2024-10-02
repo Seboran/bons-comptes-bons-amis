@@ -2,34 +2,52 @@ import numpy as np
 import scipy.optimize as opt
 
 
-def solve_for_n(balances: list):
+def solve_for_n(balances=list):
+    print('yolo')
+    if not np.isclose(np.sum(balances), 0):
+        raise ValueError("Entries of b must sum to 0")
+
     n = len(balances)
+    k = n * (n - 1)
 
-    def constraint1(vec):
-        vec = np.reshape(vec, (n, n))
-        vecteur_uns = np.ones((n))
+    # Solve linear programming problem
+    c = np.ones(k)
+    A_eq = get_const_matrix(n)
+    bounds = [(0, None)] * k
 
-        product = np.dot(vec, vecteur_uns)
+    result = opt.linprog(c, A_eq=A_eq, b_eq=balances,
+                         bounds=bounds)
 
-        return product - np.array(balances)
+    if not result.success:
+        raise ValueError("Linear programming did not converge")
 
-    def constraint_anti_symmetric(vec):
-        matrix = np.reshape(vec, (n, n))
-        diff = matrix + matrix.T
-        return np.linalg.norm(diff.flatten(), ord=2)
+    return (np.round(vec_2_mat(result.x)), result.fun, result.message, result.success)
 
-    def minimize_vector(vector1):
-        """Minimize sum and number of non-zero elements in vector1."""
-        return np.linalg.norm(vector1, ord=1) + np.count_nonzero(vector1)
 
-    initial_guess = np.zeros(n**2)
+def get_const_matrix(n):
+    if n < 2:
+        raise ValueError("n must be at least 2")
 
-    result = opt.minimize(minimize_vector, x0=initial_guess, method="SLSQP", constraints=[
-        {'type': 'eq', 'fun': constraint1},
-        {'type': 'eq', 'fun': constraint_anti_symmetric},
-    ], options={'maxiter': 1000, 'disp': True})
+    block = np.vstack((np.ones((1, n-1)), -np.eye(n-1)))
+    b_list = [None] * n
+    b_list[0] = block
 
-    argument_result = np.reshape(result.x, (n, n))
-    argument_result = np.round(argument_result, 2)
+    for i in range(1, n):
+        block[[i-1, i], :] = block[[i, i-1], :]
+        b_list[i] = block.copy()
 
-    return (argument_result, result.fun, result.message, result.success)
+    return np.hstack(b_list)
+
+
+def mat_2_vec(X):
+    return X[np.tril_indices_from(X, k=-1)] + X[np.triu_indices_from(X, k=1)]
+
+
+def vec_2_mat(x):
+    n = int(0.5 * (1 + np.sqrt(1 + 4 * len(x))))
+    X = np.zeros((n, n))
+    lower_indices = np.tril_indices(n, -1)
+    upper_indices = np.triu_indices(n, 1)
+    X[lower_indices] = x[:len(lower_indices[0])]
+    X[upper_indices] = x[len(lower_indices[0]):]
+    return X

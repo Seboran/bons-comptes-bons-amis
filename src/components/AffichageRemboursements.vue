@@ -16,7 +16,7 @@ const lignesRemboursement = computed(() => {
           àQui: i
         }
       })
-      .filter(({ combien }) => combien < 0)
+      .filter(({ combien }) => combien > 0)
   })
 })
 </script>
@@ -34,7 +34,7 @@ const lignesRemboursement = computed(() => {
       <template v-for="({ qui, combien, àQui }, _index) in lignesRemboursement" :key="_index">
         <tr>
           <td>{{ nomsBalances[qui] }}</td>
-          <td>{{ -combien }}€</td>
+          <td>{{ combien }}€</td>
           <td>{{ nomsBalances[àQui] }}</td>
         </tr>
       </template>
