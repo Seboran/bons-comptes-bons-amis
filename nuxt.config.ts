@@ -12,6 +12,7 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     '@nuxtjs/tailwindcss',
     'nuxt-typed-router',
-    '@pinia/nuxt'
+    '@pinia/nuxt',
+    'nuxt-security'
   ]
 })
