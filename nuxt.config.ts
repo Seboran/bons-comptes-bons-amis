@@ -28,7 +28,9 @@ export default defineNuxtConfig({
         'style-src': [
           "'self'", // Enables loading of stylesheets hosted on same origin
           'https:', // For increased security, replace by the specific hosting domain or file name of your external stylesheets
-          "'unsafe-inline'" // Recommended default for most Nuxt apps
+          "'unsafe-inline'", // Recommended default for most Nuxt apps
+          "'strict-dynamic'", // Strict CSP via 'strict-dynamic', supported by most modern browsers (level 3)
+          "'nonce-{{nonce}}'" // Enables CSP nonce support for scripts in SSR mode, supported by almost any browser (level 2)
         ],
         'base-uri': ["'none'"],
         'img-src': ["'self'", 'data:'], // Add relevant https://... sources if you load images from external sources
