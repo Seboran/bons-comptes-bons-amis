@@ -1,15 +1,14 @@
+import vue from '@vitejs/plugin-vue'
 import { fileURLToPath } from 'node:url'
-import { mergeConfig, defineConfig, configDefaults } from 'vitest/config'
-import viteConfig from './vite.config'
+import { configDefaults, defineConfig } from 'vitest/config'
 
-export default mergeConfig(
-  viteConfig,
-  defineConfig({
-    test: {
-      globals: true,
-      environment: 'happy-dom',
-      exclude: [...configDefaults.exclude, 'e2e/**', '.vercel/**'],
-      root: fileURLToPath(new URL('./', import.meta.url))
-    }
-  })
-)
+export default defineConfig({
+  plugins: [vue()],
+
+  test: {
+    globals: true,
+    environment: 'happy-dom',
+    exclude: [...configDefaults.exclude, 'e2e/**', '.vercel/**'],
+    root: fileURLToPath(new URL('./', import.meta.url))
+  }
+})
